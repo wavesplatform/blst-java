@@ -1,4 +1,4 @@
-name: Publish artfiacts to Maven Central
+name: Publish artifacts to Maven Central
 
 on:
   workflow_dispatch:
@@ -30,7 +30,8 @@ jobs:
             cmd: ./build.sh
           - platform: darwin
             arch: x86-64
-            cmd: CC='cc -target x86_64-apple-darwin20.1.0' CXX='c++ -std=c++11 -target x86_64-apple-darwin20.1.0' ./build.sh && mv supranational/blst/Mac/{aarch64,amd64}
+            # https://github.com/openjdk/jdk/commit/5b1baa3d10d9ef3f07f133ece8a5f1d40311c74d#diff-6078ab1e47c6bb312b7f41e7539b4849189260c38f9b359c205a5aa0f633533dR278
+            cmd: CC='cc -target x86_64-apple-darwin20.1.0' CXX='c++ -std=c++11 -target x86_64-apple-darwin20.1.0' ./build.sh && mv supranational/blst/Mac/{aarch64,x86_64}
           - platform: linux
             os: ubuntu-22.04
             extra-packages: gcc-9 g++-9
