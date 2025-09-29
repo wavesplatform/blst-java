@@ -46,7 +46,7 @@ jobs:
             cmd: CC='gcc-9 -m32' CXX='g++-9 -m32' ./build.sh && mv supranational/blst/Linux/{amd64,x86}
           - platform: win32
             os: windows-2022
-            cmd: ..\..\build.bat & bash -c './build.sh'
+            cmd: bash -c './build.sh -D__BLST_PORTABLE__'
 
     steps:
       - uses: actions/checkout@v4
