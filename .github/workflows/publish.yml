@@ -46,7 +46,11 @@ jobs:
             cmd: CC='gcc-9 -m32' CXX='g++-9 -m32' ./build.sh && mv supranational/blst/Linux/{amd64,x86}
           - platform: win32
             os: windows-2022
-            cmd: bash -c './build.sh -D__BLST_PORTABLE__'
+            cmd: |
+              cmd /c ..\..\build.bat
+              mkdir supranational\blst\Windows\amd64
+              swig -c++ -java -package supranational.blst -outdir supranational\blst -o blst_wrap.cpp ..\blst.swg
+              cl /nologo /MT /LD /O2 /W3 /wd4267 /EHsc /D_CRT_SECURE_NO_WARNINGS /I "$env:JAVA_HOME\include" /I ..\ /I "$env:JAVA_HOME\include\win32" blst_wrap.cpp blst.lib /link /OUT:supranational/blst/Windows/amd64/blst.dll
 
     steps:
       - uses: actions/checkout@v4
@@ -57,12 +61,14 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - if: ${{ matrix.extra-packages }}
+      - if: matrix.extra-packages != ''
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.extra-packages }}
-      - if: ${{ matrix.brew-packages }}
+      - if: matrix.brew-packages != ''
         run: brew install ${{ matrix.brew-packages }}
+      - if: matrix.os == 'windows-2022'
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
       - name: Build native image
         run: |
           cd bindings/java
