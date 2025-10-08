@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version
+        description: blst version
         default: 0.3.15
+      suffix:
+        description: version suffix
+        default: -SNAPSHOT
 
 jobs:
   build-native:
@@ -107,5 +110,5 @@ jobs:
           mkdir -p src/main/{resources,java}/supranational/blst
           mv artifacts/*.java src/main/java/supranational/blst
           mv artifacts/* src/main/resources/supranational/blst/
-          mvn versions:set -DnewVersion=${{ inputs.version }}-SNAPSHOT -DgenerateBackupPoms=false
+          mvn versions:set -DnewVersion=${{ inputs.version }}${{ inputs.suffix }} -DgenerateBackupPoms=false
           mvn -B deploy
