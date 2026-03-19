@@ -29,14 +29,14 @@ jobs:
         include:
           - platform: darwin
             os: macos-14
-            brew-packages: https://raw.githubusercontent.com/Homebrew/homebrew-core/d68a6bc0fa0fe84d4ab40a7df228a2b9bc48bc37/Formula/s/swig.rb
+            brew-packages: swig
             cmd: ./run.me
           - platform: darwin
             arch: x86-64
             # https://github.com/openjdk/jdk/commit/5b1baa3d10d9ef3f07f133ece8a5f1d40311c74d#diff-6078ab1e47c6bb312b7f41e7539b4849189260c38f9b359c205a5aa0f633533dR278
             cmd: CC='cc -target x86_64-apple-darwin20.1.0' CXX='c++ -std=c++11 -target x86_64-apple-darwin20.1.0' ./build.sh && mv supranational/blst/Mac/{aarch64,x86_64}
           - platform: linux
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             extra-packages: gcc-9 g++-9
             cmd: CC=gcc-9 CXX=g++-9 ./build.sh -D__BLST_PORTABLE__
           - platform: linux
@@ -56,10 +56,14 @@ jobs:
               cl /nologo /MT /LD /O2 /W3 /wd4267 /EHsc /D_CRT_SECURE_NO_WARNINGS /I "$env:JAVA_HOME\include" /I ..\ /I "$env:JAVA_HOME\include\win32" blst_wrap.cpp blst.lib /link /OUT:supranational/blst/Windows/amd64/blst.dll
 
     steps:
+      - if: matrix.platform == 'darwin'
+        run: echo "SDKROOT=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
+      - if: matrix.brew-packages != ''
+        run: brew install ${{ matrix.brew-packages }}
+      - run: swig -version
       - uses: actions/checkout@v6
         with:
           repository: supranational/blst
-          ref: v${{ inputs.version }}
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -68,8 +72,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.extra-packages }}
-      - if: matrix.brew-packages != ''
-        run: brew install ${{ matrix.brew-packages }}
       - if: matrix.os == 'windows-2022'
         uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
       - name: Build native image
