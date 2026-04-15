@@ -78,7 +78,7 @@ jobs:
         run: |
           cd bindings/java
           ${{ matrix.cmd }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: blst-${{ env.target-path }}.zip
           path: |
